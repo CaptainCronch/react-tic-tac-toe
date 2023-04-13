@@ -9,7 +9,7 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay, onVictory }) {
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -31,6 +31,7 @@ function Board({ xIsNext, squares, onPlay }) {
   if (winner) {
     status = " Wins";
     result = winner;
+    onVictory(!xIsNext);
   } else {
     status = " Player Turn";
     result = xIsNext ? "X" : "O";
@@ -64,13 +65,30 @@ function Board({ xIsNext, squares, onPlay }) {
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
+  const [xIsNext, setXIsNext] = useState(true);
+  const [xScore, setXScore] = useState(0);
+  const [oScore, setOScore] = useState(0);
   const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+    setXIsNext(!xIsNext)
+  }
+
+  function handleSwitch() {
+    if (currentMove === 0) {
+      setXIsNext(!xIsNext)
+    }
+  }
+
+  function handleVictory(xWon) {
+    if (xWon) {
+      setXScore(xScore + 1);
+    } else {
+      setOScore(oScore + 1);
+    }
   }
 
   function jumpTo(nextMove) {
@@ -85,7 +103,7 @@ export default function Game() {
       description = "Go to game start";
     }
     return (
-      <li key={move}>
+      <li className="history" key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     );
@@ -98,10 +116,14 @@ export default function Game() {
           xIsNext={xIsNext}
           squares={currentSquares}
           onPlay={handlePlay}
+          onVictory={handleVictory}
         ></Board>
       </div>
-      <div className="gane-info">
-        <ol>{moves}</ol>
+      <div className="game-info">
+        <h1 className="score x-score"><span>X</span> {xScore}</h1>
+        <h1 className="score o-score">{oScore} <span>O</span></h1>
+        <ol className="history-list">{moves}</ol>
+        <button className="switch-player" onClick={handleSwitch}>Switch starting player</button>
       </div>
     </div>
   );
