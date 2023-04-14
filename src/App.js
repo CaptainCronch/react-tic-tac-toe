@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { useEffect } from "react";
 
 function Square({ value, onSquareClick }) {
   return (
@@ -31,7 +32,10 @@ function Board({ xIsNext, squares, onPlay, onVictory }) {
   if (winner) {
     status = " Wins";
     result = winner;
-    onVictory(!xIsNext);
+
+    useEffect(() => {
+      onVictory(!xIsNext);
+    }, []);
   } else {
     status = " Player Turn";
     result = xIsNext ? "X" : "O";
@@ -100,7 +104,7 @@ export default function Game() {
     if (move > 0) {
       description = "Go to move #" + move;
     } else {
-      description = "Go to game start";
+      description = "Restart";
     }
     return (
       <li className="history" key={move}>
